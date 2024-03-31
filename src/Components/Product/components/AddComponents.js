@@ -4,6 +4,7 @@ import styles from "../product.module.css";
 import generateId from "../../../util";
 import { useDispatch, useSelector } from "react-redux";
 import { productActions } from "../../../store";
+import { sendData } from "../../../APIS/apis";
 
 function AddComponents() {
     const [selectedRows, setSelectedRows] = useState([]);
@@ -67,7 +68,7 @@ function AddComponents() {
         });
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!currActive.startsWith("c")) {
             if (validation()) {
                 console.log("saved", componentsState);
@@ -77,6 +78,25 @@ function AddComponents() {
                         componentsState.map((component) => [...component])
                     )
                 );
+                // here components data is sent to backend sub_assembly_components table
+                console.log(componentsState)
+                const len = componentsState.length;
+                for(let i=0; i<len; i++){
+                    const requestComponentsData = {
+                        "item_name": componentsState[i][0],
+                        "sub_assembly_id": componentsState[i][1],
+                        "bought_up": componentsState[i][2],
+                        "comp_file_location": componentsState[i][3]
+                    }
+                    try {
+                        const { message, data } = await sendData(requestComponentsData, "POST", '/addsubassemblycomponents');
+                        console.log(message, data);
+                        // Do something with the response data if needed
+                    } catch (error) {
+                        // Handle errors
+                        console.error('Error:', error.message);
+                    }
+                }
             } else {
                 console.log("Validation Failed");
             }

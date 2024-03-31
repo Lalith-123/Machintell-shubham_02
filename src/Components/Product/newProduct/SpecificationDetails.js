@@ -3,8 +3,10 @@ import DynamicTable from "./DynamicTable";
 import styles from "../product.module.css";
 import { useDispatch, useSelector } from "react-redux";
 import { productActions } from "../../../store";
+import { sendData } from "../../../APIS/apis";
 
 function SpecificationDetails() {
+    const { id } = useSelector((state) => state.product); // id here is used to for entering the data of the specifications to a perticular product_id in backend table
     const [selectedRows, setSelectedRows] = useState([]);
     const [error, seterror] = useState("");
     const dispatch = useDispatch();
@@ -49,7 +51,7 @@ function SpecificationDetails() {
         });
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (validation()) {
             console.log("saved");
             dispatch(
@@ -59,6 +61,38 @@ function SpecificationDetails() {
                     ])
                 )
             );
+            // Here data is sending data of specifications to the a=backend table product_specifications
+            console.log(specifications)
+            const len = specifications.lemght;
+            for(let i=0; i<len; i++){
+                const requestSpecificationData = {
+                    "product_id": id,
+                    "product_specifications": specifications[i][0],
+                    "product_unit": specifications[i][1],
+                    "product_value": specifications[i][2]
+                }
+                try {
+                    const { message, data } = await sendData(requestSpecificationData, "POST", '/addproductspecs');
+                    console.log(message, data);
+                    // Do something with the response data if needed
+                } catch (error) {
+                    // Handle errors
+                    console.error('Error:', error.message);
+                }
+            }
+
+            // const requestProductSecData = {
+            //     "product_id": id,
+            //     "product_sec_fn": secondaryFunctions
+            // }
+            // try {
+            //     const { message, data } = await sendData(requestProductData, "POST", '/addproduct');
+            //     console.log(message, data);
+            //     // Do something with the response data if needed
+            //   } catch (error) {
+            //     // Handle errors
+            //     console.error('Error:', error.message);
+            //   }
         } else {
             console.log("Validation Failed");
         }

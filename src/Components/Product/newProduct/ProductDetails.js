@@ -3,6 +3,7 @@ import SpecificationDetails from "./SpecificationDetails";
 import styles from "../product.module.css";
 import { useDispatch, useSelector } from "react-redux";
 import { productActions } from "../../../store";
+import { sendData } from "../../../APIS/apis";
 
 function ProductDetails() {
     const { name, id, fileLocation, mainFunction, secondaryFunctions } =
@@ -73,12 +74,13 @@ function ProductDetails() {
         return isValid;
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
         console.log(
             "Saving data...",
             mainFunctionRef.current.value,
             secondaryFunctionsState
         );
+
 
         // Perform validation
         if (validation()) {
@@ -90,6 +92,39 @@ function ProductDetails() {
             );
             // add product details (main function) data to backend
             // add product secondary functions data to backend
+            // product
+            const requestProductData = {
+                "product_name": name,
+                "product_id": id,
+                "File_Location": fileLocation,
+                "product_main_function": mainFunction
+            }
+            try {
+                const { message, data } = await sendData(requestProductData, "POST", '/addproduct');
+                console.log(message, data);
+                // Do something with the response data if needed
+              } catch (error) {
+                // Handle errors
+                console.error('Error:', error.message);
+              }
+            // As secondaryFunctions isan array, for loop is used to send each secondaryFunctions
+
+            //
+            const len = secondaryFunctions.length;
+            for(let i=0; i++; i<len){
+                const requestProductSecData = {
+                    "product_id": id,
+                    "product_sec_fn": secondaryFunctions[i]
+                }
+                try {
+                    const { message, data } = await sendData(requestProductSecData, "POST", '/addproductsecondaryfn/123');
+                    console.log(message, data);
+                    // Do something with the response data if needed
+                } catch (error) {
+                    // Handle errors
+                    console.error('Error:', error.message);
+                }
+            }
         } else {
             console.log("Validation failed");
         }

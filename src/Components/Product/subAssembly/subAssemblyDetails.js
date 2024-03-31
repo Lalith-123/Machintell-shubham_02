@@ -2,9 +2,10 @@ import React, { useState, useRef } from "react";
 import styles from "../product.module.css";
 import { productActions } from "../../../store";
 import { useDispatch, useSelector } from "react-redux";
+import { sendData } from "../../../APIS/apis";
 
 function SubAssemblyDetails() {
-    const { subassemblies, currActive } = useSelector((state) => state.product);
+    const { id,subassemblies, currActive } = useSelector((state) => state.product);
     const {
         name,
         fileLocation,
@@ -79,7 +80,7 @@ function SubAssemblyDetails() {
         return isValid;
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
         console.log(
             "Saving data...",
             mainFunctionRef.current.value,
@@ -96,6 +97,40 @@ function SubAssemblyDetails() {
             );
             // add subassembly details (main function) data to backend
             // add subassembly secondary functions data to backend
+            // first we are sending sub_assemblies table data to backend
+            const requestSubAssemblesData = {
+                "product_id": id,
+                "subassembly_name": name,
+                "sub_assembly_id": currActive,
+                "sub_assembly_bought_up": isBoughtUp,
+                "file_location": fileLocation,
+                "subassembly_main_func": mainFunction,
+                "to_add_assemblies": isChildrenNeeded
+            }
+            try {
+                const { message, data } = await sendData(requestSubAssemblesData, "POST", '/addsubassembly');
+                console.log(message, data);
+                // Do something with the response data if needed
+            } catch (error) {
+                // Handle errors
+                console.error('Error:', error.message);
+            }
+            // Now we are sending sub_sec_functions table data to the backend
+            const len = secondaryFunctions.length;
+            for (let i=0; i<len; i++){
+                const requestSubSecondaryFunctions = {
+                    "sub_assembly_id": currActive,
+                    "sub_secondary_functions_details": secondaryFunctions[i]
+                }
+                try {
+                    const { message, data } = await sendData(requestSubSecondaryFunctions, "POST", '/addsubassemblysecfn');
+                    console.log(message, data);
+                    // Do something with the response data if needed
+                } catch (error) {
+                    // Handle errors
+                    console.error('Error:', error.message);
+                }
+            }
         } else {
             console.log("Validation failed");
         }

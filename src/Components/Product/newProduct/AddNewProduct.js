@@ -3,6 +3,7 @@ import styles from "../product.module.css";
 import { useDispatch } from "react-redux";
 import { productActions } from "../../../store";
 import generateId from "../../../util";
+import { sendData } from "../../../APIS/apis";
 
 function AddNewProduct() {
     const nameRef = useRef();
@@ -36,8 +37,21 @@ function AddNewProduct() {
         return isValid;
     };
 
-    const handleSave = () => {
-        console.log("Saving data...");
+    const handleSave = async() => {
+        // console.log("Saving data...",nameRef,fileLocationRef);
+        // const requestData = {
+        //     "product_name": nameRef,
+        //     "product_id": "hedh",
+        //     "File_Location": fileLocationRef
+        //   }
+        //   try {
+        //     const { message, data } = await sendData(requestData, "POST", '/addproduct');
+        //     console.log(message, data);
+        //     // Do something with the response data if needed
+        //   } catch (error) {
+        //     // Handle errors
+        //     console.error('Error:', error.message);
+        //   }
 
         // Perform validation
         if (validation()) {
@@ -49,6 +63,20 @@ function AddNewProduct() {
                     id: generateId(nameRef.current.value, "p"),
                 })
             );
+            // console.log(nameRef.current.value,fileLocationRef.current.value,generateId(nameRef.current.value, "p"))
+            // const requestData = {
+            //     "product_name": nameRef.current.value,
+            //     "product_id": generateId(nameRef.current.value, "p"),
+            //     "File_Location": fileLocationRef.current.value
+            // }
+            // try {
+            //     const { message, data } = await sendData(requestData, "POST", '/addproduct');
+            //     console.log(message, data);
+            //     // Do something with the response data if needed
+            //   } catch (error) {
+            //     // Handle errors
+            //     console.error('Error:', error.message);
+            //   }
         } else {
             console.log("Validation failed");
         }
